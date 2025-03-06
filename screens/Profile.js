@@ -1,30 +1,78 @@
 import React from "react";
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from "react-native";
+import Icon from 'react-native-vector-icons/Feather'; // Assuming you're using Feather icons
 
 const Profile = ({ navigation }) => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Profile</Text>
+  return (
+    <View style={styles.container}>
+      {/* Profile Header with Edit Icon */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Account</Text>
+        <Icon name="edit-2" size={24} color="#ccc" />
+      </View>
 
-        </View>
-    );
-}
+      {/* User Avatar */}
+      <View style={styles.avatarContainer}>
+        <Image
+          source={require('./assets/avatar.png')} // Replace with your avatar image path
+          style={styles.avatar}
+        />
+      </View>
+
+      {/* User Information */}
+      <View style={styles.userInfoContainer}>
+        <Text style={styles.userName}>Devcent NIYO</Text>
+        <Text style={styles.userDetail}>devcentniyo@gmail.com</Text>
+        <Text style={styles.userDetail}>078879667</Text>
+      </View>
+    </View>
+  );
+};
 
 export default Profile;
 
+// Styles
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#8fcbbc'
-
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#fff",
-        marginBottom: 20,
-    },
-
+  container: {
+    flex: 1,
+    backgroundColor: "#282B34", 
+    padding: 20,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ffffff', 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userInfoContainer: {
+    alignItems: 'center',
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ccc",
+    marginBottom: 10,
+  },
+  userDetail: {
+    fontSize: 16,
+    color: "#ccc",
+    marginBottom: 5,
+  },
 });
