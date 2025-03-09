@@ -7,8 +7,6 @@ import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Home from '../screens/HomeScreen';
 import Books from '../screens/Books';
 import Testments from '../screens/Testments';
-import Audio from '../screens/Audio';
-import Profile from '../screens/Profile';
 import Notes from '../screens/Notes';
 
 const Tab = createBottomTabNavigator();
@@ -67,11 +65,7 @@ const Verses = () => (
     <Stack.Screen name="Verses" component={Verses} />
   </Stack.Navigator>
 );
-const Profiles = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Profile" component={Profile} />
-  </Stack.Navigator>
-);
+
 
 const Tabs = () => {
   return (
@@ -148,23 +142,7 @@ const Tabs = () => {
         }}
       />
 
-      {/* Profile Stack */}
-      <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name="person-outline"
-                size={24}
-                color={focused ? '#A93341' : '#748c94'}
-              />
-
-            </View>
-          ),
-        }}
-      />
+   
     </Tab.Navigator>
   );
 };
