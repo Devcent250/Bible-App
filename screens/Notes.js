@@ -1,249 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet, Dimensions, Platform } from 'react-native';
-import YoutubePlayer from 'react-native-youtube-iframe'; 
-import { WebView } from 'react-native-web-webview';
-import { FontAwesome } from '@expo/vector-icons';
+
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import Icon from 'react-native-vector-icons/Feather';
 
 const Notes = () => {
-  const [videos, setVideos] = useState([]);
-  const [videoIndex, setVideoIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  
-  const screenWidth = Dimensions.get('window').width;
-  const videoHeight = (screenWidth * 9) / 16; 
-
-
-  useEffect(() => {
-    const fetchVideos = async () => {
-      const videoData = [
-        { title: 'ITANGIRIRO 1', videoId: '84WIaK3bl_s', time: '20min', verses: 50 },
-        { title: 'ITANGIRIRO 2', videoId: 'dQw4w9WgXcQ', time: '20min', verses: 50 },
-        { title: 'ITANGIRIRO 3', videoId: '3JZ_D3ELwOQ', time: '20min', verses: 50 },
-      ];
-      setVideos(videoData);
-      setLoading(false);
-    };
-    fetchVideos();
-  }, []);
-
-  // // Toggle play/pause
-  // const togglePlayPause = () => {
-  //   setPlaying((prev) => !prev);
-  // };
-
-  
-  const goToPrevious = () => {
-    if (videoIndex > 0) {
-      setVideoIndex(videoIndex - 1);
-      setPlaying(false);
-    }
-  };
-
-  const goToNext = () => {
-    if (videoIndex < videos.length - 1) {
-      setVideoIndex(videoIndex + 1);
-      setPlaying(false);
-    }
-  };
-
-
-  const renderVideo = () => {
-    if (Platform.OS === 'web') {
-      return (
-        <WebView
-          source={{
-            html: `<iframe width="${screenWidth}" height="${videoHeight}" src="https://www.youtube.com/embed/${videos[videoIndex]?.videoId}?autoplay=${playing ? 1 : 0}&enablejsapi=1" frameborder="0" allowfullscreen></iframe>`,
-          }}
-          style={{ width: screenWidth, height: videoHeight }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        />
-      );
-    }
-    return (
-      <YoutubePlayer
-        height={videoHeight}
-        width={screenWidth}
-        play={playing}
-        videoId={videos[videoIndex]?.videoId}
-        onError={(e) => console.log('YouTube Error:', e)}
-      />
-    );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.videoContainer}>
-        {renderVideo()}
-        {/* <TouchableOpacity style={styles.playButton} onPress={togglePlayPause}>
-          <FontAwesome name={playing ? 'pause' : 'play'} size={40} color="white" />
-        </TouchableOpacity> */}
-      </View>
 
-      
-      <Text style={styles.nowListening}>Now Listening</Text>
 
-  
-      <Text style={styles.title}>{videos[videoIndex]?.title}</Text>
-
-      
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={goToPrevious} disabled={videoIndex === 0} style={styles.controlButton}>
-          <FontAwesome name="backward" size={30} color="white" />
-          <FontAwesome name="step-backward" size={20} color="white" style={styles.stepBackwardsIcon} />
-        </TouchableOpacity>
-
-        
-        <TouchableOpacity onPress={goToNext} disabled={videoIndex === videos.length - 1} style={styles.controlButton}>
-          <FontAwesome name="step-forward" size={20} color="white" style={styles.stepForwardsIcon} />
-          <FontAwesome name="forward" size={30} color="white" />
-        </TouchableOpacity>
+      <View style={styles.noteContainer}>
+        <View style={styles.audioContainer}>
+          <Icon name="play-circle" size={24} color="black" />
+          <View style={styles.progressBarContainer}>
+            <View style={styles.progressBar} />
+          </View>
+          <Text style={styles.dateText}>2023-03-01</Text>
+        </View>
+        <Text style={styles.noteNumber}>1</Text>
+        <View style={styles.noteTextContainer}>
+          <Text style={styles.noteText}>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Text>
+          <Text style={styles.noteText}>Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio.</Text>
+          <Text style={styles.noteText}>Vitae scelerisque enim ligula venenatis dolor.</Text>
+          <Text style={styles.noteText}>Maecenas nisl est, ultrices nec congue eget, auctor vitae massa.</Text>
+        </View>
+        <Text style={styles.noteFooter}>Itangiro1</Text>
       </View>
 
 
-
-      <FlatList
-        data={videos}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            style={styles.videoItem}
-            onPress={() => {
-              setVideoIndex(index);
-              setPlaying(false);
-            }}
-          >
-            <TouchableOpacity style={styles.playItemButton} onPress={() => {
-              setVideoIndex(index);
-              setPlaying(true);
-            }}>
-              <Image source={{ uri: `https://img.youtube.com/vi/${item.videoId}/0.jpg` }} style={styles.thumbnail} />
-              <View style={styles.playOverlay}>
-                <FontAwesome name="play" size={15} color="black" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.videoInfo}>
-              <Text style={styles.videoTitle}>{item.title}</Text>
-              <Text style={styles.videoDetails}>Imirongo: {item.verses}</Text>
-              <Text style={styles.videoDetails}>Time: {item.time}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        style={styles.list}
-      />
+      <View style={styles.noteContainer}>
+        <View style={styles.audioContainer}>
+          <Icon name="play-circle" size={24} color="black" />
+          <View style={styles.progressBarContainer}>
+            <View style={styles.progressBar} />
+          </View>
+          <Text style={styles.dateText}>2023-03-02</Text>
+        </View>
+        <Text style={styles.noteNumber}>5</Text>
+        <View style={styles.noteTextContainer}>
+          <Text style={styles.noteText}>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Text>
+          <Text style={styles.noteText}>Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio.</Text>
+          <Text style={styles.noteText}>Vitae scelerisque enim ligula venenatis dolor.</Text>
+          <Text style={styles.noteText}>Maecenas nisl est, ultrices nec congue eget, auctor vitae massa.</Text>
+        </View>
+        <Text style={styles.noteFooter}>Matayo1:2</Text>
+      </View>
     </View>
   );
 };
 
+export default Notes;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a202c',
-    padding: 0,
-    margin: 0,
+    backgroundColor: '#ffffff',
+    padding: 20,
   },
-  videoContainer: {
-    width: '100%',
-    height: (Dimensions.get('window').width * 9) / 16, // Fixed height to prevent scrolling
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black",
+    marginBottom: 20,
   },
-  playButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  noteContainer: {
+    marginBottom: 40,
   },
-  nowListening: {
-    fontSize: 14,
-    color: 'gray',
-    textAlign: 'center',
-    marginVertical: 5,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginVertical: 5,
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 30,
-    paddingHorizontal: 15,
-  },
-  controlButton: {
+  audioContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
   },
-  stepForwardsIcon: {
-    marginRight: 10,  // Adjust the value as needed
-  },
-  stepBackwardsIcon: {
-    marginLeft: 10,  // Adjust the value as needed
-  },
-  videoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2d3748',
-  },
-  playItemButton: {
-    position: 'relative',
-    width: 100,
-    height: 100,
-    borderRadius: 10, // Slight rounding to match the image
-    overflow: 'hidden', // Ensure the image and overlay are contained
-  },
-  thumbnail: {
-    width: '100%',
-    height: '100%',
-  },
-  playOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(59, 51, 51, 0.5)', // Red overlay with transparency
-    borderRadius: 10,
-  },
-  videoInfo: {
+  progressBarContainer: {
     flex: 1,
-    marginLeft: 10,
+    height: 4,
+    backgroundColor: "#ccc",
+    borderRadius: 2,
+    marginHorizontal: 10,
   },
-  videoTitle: {
+  progressBar: {
+    width: '50%',
+    height: '100%',
+    backgroundColor: "#f68c00",
+    borderRadius: 2,
+  },
+  dateText: {
+    color: "black",
+    fontSize: 12,
+    marginTop: 12,
+  },
+  noteNumber: {
+    fontSize: 48,
+    fontWeight: "bold",
+    color: "#f68c00",
+    marginBottom: 10,
+  },
+  noteTextContainer: {
+    marginBottom: 10,
+  },
+  noteText: {
+    color: "black",
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
+    marginBottom: 5,
   },
-  videoDetails: {
-    color: 'gray',
-  },
-  list: {
-    flex: 1, // Allow list to take remaining space and scroll
+  noteFooter: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
-
-export default Notes;

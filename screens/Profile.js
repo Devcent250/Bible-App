@@ -1,25 +1,25 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import Icon from 'react-native-vector-icons/Feather'; // Assuming you're using Feather icons
+import Icon from 'react-native-vector-icons/Feather'; 
 
 const Profile = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      {/* Profile Header with Edit Icon */}
+      
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Account</Text>
         <Icon name="edit-2" size={24} color="#ccc" />
       </View>
 
-      {/* User Avatar */}
+      
       <View style={styles.avatarContainer}>
         <Image
-          source={require('./assets/avatar.png')} // Replace with your avatar image path
+          source={require('./assets/avatar.png')} 
           style={styles.avatar}
         />
       </View>
 
-      {/* User Information */}
+      
       <View style={styles.userInfoContainer}>
         <Text style={styles.userName}>Devcent NIYO</Text>
         <Text style={styles.userDetail}>devcentniyo@gmail.com</Text>
@@ -31,7 +31,7 @@ const Profile = ({ navigation }) => {
 
 export default Profile;
 
-// Styles
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
