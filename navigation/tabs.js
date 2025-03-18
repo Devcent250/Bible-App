@@ -124,7 +124,7 @@ const Tabs = () => {
         }}
       />
 
-      {/* Audio Floating Button */}
+
       <Tab.Screen
         name="Audio"
         component={Audio}
@@ -134,7 +134,7 @@ const Tabs = () => {
         }}
       />
 
-      {/* Notes Tab */}
+
       <Tab.Screen
         name="Notes"
         component={NotesStack}
@@ -152,23 +152,7 @@ const Tabs = () => {
         }}
       />
 
-      {/* Profile Tab */}
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStack}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name="person-outline"
-                size={24}
-                color={focused ? '#A93341' : '#748c94'}
-              />
-              <Text style={{ color: focused ? '#A93341' : '#748c94', fontSize: 10 }}>Profile</Text>
-            </View>
-          ),
-        }}
-      />
+
     </Tab.Navigator>
   );
 };

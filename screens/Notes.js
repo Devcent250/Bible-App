@@ -1,7 +1,7 @@
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Icon from 'react-native-vector-icons/Feather'; // Assuming you're using Feather icons
+import Icon from 'react-native-vector-icons/Feather';
 
 const Notes = () => {
   return (

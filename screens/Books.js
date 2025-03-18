@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ImageBackground, ActivityIndicator } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const BooksScreen = ({ navigation, route }) => {
   const { testament } = route.params || { testament: "Isezerano Rya Kera" };
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchBooks();
@@ -24,23 +23,21 @@ const BooksScreen = ({ navigation, route }) => {
       setLoading(false);
     }
   };
-
-  const filteredBooks = books.filter((book) =>
-    book.book_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const renderBook = ({ item }) => (
     <TouchableOpacity
       style={styles.bookCard}
       onPress={() => navigation.navigate("Chapters", { book: item.book_name, chapters: item.total_chapters })}
     >
-      <View style={styles.bookItem}>
-        <Icon name="book" size={24} color="#ccc" style={styles.bookIcon} />
-        <Text style={styles.bookTitle}>{item.book_name}</Text>
-        <Text style={styles.bookDetails}>
-          {item.total_chapters} Chapters
-        </Text>
-      </View>
+      <ImageBackground
+        source={{ uri: item.book_cover || "https://via.placeholder.com/150" }}
+        style={styles.bookImage}
+        imageStyle={styles.bookImageStyle}
+      >
+        <View style={styles.overlay}>
+          <Text style={styles.bookTitle}>{item.book_name}</Text>
+          <Text style={styles.chapterText}>{item.total_chapters} Chapters</Text>
+        </View>
+      </ImageBackground>
     </TouchableOpacity>
   );
 
@@ -60,34 +57,18 @@ const BooksScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <Text style={styles.headerText}>{testament}</Text>
       </View>
-
-      {/* Search Input */}
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#ccc" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Shaka igitabo..."
-          placeholderTextColor="#ccc"
-          value={searchQuery}
-          onChangeText={(text) => setSearchQuery(text)}
-        />
+      <View style={styles.searchBar}>
+        <Icon name="search" size={15} color="#ffffff" style={styles.searchIcon} />
       </View>
-
-      {/* Book List */}
-      <ScrollView style={styles.scrollView}>
-        {filteredBooks.length > 0 ? (
-          <FlatList
-            data={filteredBooks}
-            renderItem={renderBook}
-            keyExtractor={(item) => item._id}
-            numColumns={2}
-            columnWrapperStyle={styles.row}
-            contentContainerStyle={styles.grid}
-          />
-        ) : (
-          <Text style={styles.noResults}>Nta gitabo kibonetse</Text>
-        )}
-      </ScrollView>
+      <FlatList
+        data={books}
+        renderItem={renderBook}
+        keyExtractor={(item) => item._id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.grid}
+        ListEmptyComponent={<Text style={styles.emptyText}>No books found for {testament}</Text>}
+      />
     </View>
   );
 };
@@ -95,9 +76,7 @@ const BooksScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#282B34",
-    alignItems: "center",
-    padding: 20,
+    backgroundColor: "#ffffff",
   },
   loadingContainer: {
     flex: 1,
@@ -117,70 +96,61 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#f68c00",
   },
-  searchContainer: {
+  searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    width: "100%",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 50,
-    paddingHorizontal: 10,
+    backgroundColor: "rgba(246, 140, 0, 0.51)",
+    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
   searchIcon: {
     marginRight: 10,
   },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 10,
-    color: "#FFFFFF",
+  grid: {
+    paddingHorizontal: 15,
   },
-  scrollView: {
-    width: "100%",
+  row: {
+    justifyContent: "space-between",
   },
   bookCard: {
     flex: 1,
     margin: 5,
-    padding: 15,
-    borderRadius: 8,
+    borderRadius: 10,
+    overflow: "hidden",
+    height: 150,
+  },
+  bookImage: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  bookImageStyle: {
+    borderRadius: 10,
+  },
+  overlay: {
+    backgroundColor: "rgba(246, 140, 0, 0.51)",
+    padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    width: "48%",
-    backgroundColor: "#3A3F4B",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
-  },
-  bookIcon: {
-    marginBottom: 10,
+    flex: 1,
   },
   bookTitle: {
     fontSize: 18,
-    color: "#FFFFFF",
     fontWeight: "bold",
+    color: "#ffffff",
     textAlign: "center",
   },
-  bookDetails: {
+  chapterText: {
     fontSize: 14,
-    color: "#FFFFFF",
-    marginTop: 5,
+    color: "#ffffff",
     textAlign: "center",
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  grid: {
-    paddingHorizontal: 15,
-  },
-  noResults: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    marginTop: 10,
+  emptyText: {
     textAlign: "center",
+    padding: 20,
+    color: "#f68c00",
   },
 });
 
