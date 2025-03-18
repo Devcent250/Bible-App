@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
         height: (Dimensions.get('window').width * 9) / 16,
         alignItems: 'center',
         justifyContent: 'center',
-<<<<<<< HEAD
         position: 'relative',
     },
     backButton: {
@@ -159,9 +158,6 @@ const styles = StyleSheet.create({
         padding: 10,
         zIndex: 1,
     },
-=======
-        backgroundColor: '#'
->>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
 
     nowListening: {
         fontSize: 14,

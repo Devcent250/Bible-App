@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 const Testaments = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      {/* First Button (Navigates to 'Books' screen with 'Isezerano Rya Kera') */}
+      {/* First Button (Navigates to Books with Old Testament) */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("Books", { testament: "Isezerano Rya Kera" })}
@@ -12,10 +12,7 @@ const Testaments = ({ navigation }) => {
         <Text style={styles.buttonText}>ISEZERANO RYA KERA</Text>
       </TouchableOpacity>
 
-      {/* Separator Line */}
-      <View style={styles.separator} />
-
-      {/* Second Button (Navigates to 'Books' screen with 'Isezerano Rishya') */}
+      {/* Second Button (Navigates to Books with New Testament) */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("Books", { testament: "Isezerano Rishya" })}
@@ -34,7 +31,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#282B34",
+    backgroundColor: "#ffffff",
   },
   button: {
     width: "80%",
@@ -48,11 +45,5 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  separator: {
-    width: "80%",
-    height: 1,
-    backgroundColor: "#FFFFFF",
-    marginVertical: 10,
   },
 });

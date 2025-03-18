@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-<<<<<<< HEAD
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -59,14 +58,6 @@ const NotesStack = () => (
   </Stack.Navigator>
 );
 
-const CustomTabBarButton = ({ children, onPress }) => (
-  <TouchableOpacity onPress={onPress}>
-    <View>
-      {children}
-    </View>
-  </TouchableOpacity>
-);
-
 const Tabs = () => {
   return (
     <Tab.Navigator
@@ -78,11 +69,7 @@ const Tabs = () => {
       <Tab.Screen
         name="Ubugingo"
         component={HomeStack}
-        options={({ route }) => ({
-          tabBarStyle: ((route) => {
-            const routeName = route.state?.routes[route.state.index]?.name ?? 'Home';
-            return routeName === 'Home' ? { display: 'none' } : styles.tabBar;
-          })(route),
+        options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.iconContainer}>
               <Ionicons
@@ -92,9 +79,8 @@ const Tabs = () => {
               />
             </View>
           ),
-        })}
+        }}
       />
-
       <Tab.Screen
         name="Amasezerano"
         component={TestmentStack}
@@ -110,7 +96,6 @@ const Tabs = () => {
           ),
         }}
       />
-
       <Tab.Screen
         name="Audio"
         component={AudioStack}
@@ -126,7 +111,6 @@ const Tabs = () => {
           ),
         }}
       />
-
       <Tab.Screen
         name="Notes"
         component={NotesStack}
@@ -146,36 +130,18 @@ const Tabs = () => {
   );
 };
 
-=======
-import Tabs from './navigation/tabs';
-import Books from "./screens/Books";
-
-const Stack = createStackNavigator();
->>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
-
 const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Main Tab Navigation */}
         <Stack.Screen name="Tabs" component={Tabs} />
-
-        {/* Books Screen */}
         <Stack.Screen name="Books" component={Books} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-<<<<<<< HEAD
 
 const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: '#7F5DF0',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -190,18 +156,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f68c00',
     borderRadius: 15,
     height: 60,
-    ...StyleSheet.create({
-      shadow: {
-        shadowColor: '#7F5DF0',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.5,
-        elevation: 5,
-      },
-    }).shadow,
+    shadowColor: '#7F5DF0',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
   },
 });
-=======
->>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
 
 export default App;

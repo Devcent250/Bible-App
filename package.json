@@ -28,15 +28,11 @@
     "react-native-screens": "^4.6.0",
     "react-native-track-player": "^4.1.1",
     "react-native-vector-icons": "^10.2.0",
-<<<<<<< HEAD
     "react-native-web": "~0.19.13",
     "react-native-web-webview": "^1.0.2",
     "react-native-webview": "^13.13.4",
     "react-native-youtube-iframe": "^2.3.0",
     "react-youtube": "^10.1.0"
-=======
-    "react-native-web": "~0.19.13"
->>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
