@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+<<<<<<< HEAD
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -145,14 +146,27 @@ const Tabs = () => {
   );
 };
 
+=======
+import Tabs from './navigation/tabs';
+import Books from "./screens/Books";
+
+const Stack = createStackNavigator();
+>>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Tabs />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Main Tab Navigation */}
+        <Stack.Screen name="Tabs" component={Tabs} />
+
+        {/* Books Screen */}
+        <Stack.Screen name="Books" component={Books} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
+<<<<<<< HEAD
 
 const styles = StyleSheet.create({
   shadow: {
@@ -187,5 +201,7 @@ const styles = StyleSheet.create({
     }).shadow,
   },
 });
+=======
+>>>>>>> 3cb776eb26be4f35f50eea2a22ee0844748fbfb0
 
 export default App;

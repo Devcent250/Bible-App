@@ -1,14 +1,12 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-
       navigation.navigate('Amasezerano', { screen: 'Testments' });
     }, 3000);
 
@@ -24,6 +22,7 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

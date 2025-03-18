@@ -1,25 +1,25 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import Icon from 'react-native-vector-icons/Feather'; 
+import Icon from 'react-native-vector-icons/Feather';
 
 const Profile = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      
+      {/* Profile Header with Edit Icon */}
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Account</Text>
         <Icon name="edit-2" size={24} color="#ccc" />
       </View>
 
-      
+      {/* User Avatar */}
       <View style={styles.avatarContainer}>
         <Image
-          source={require('./assets/avatar.png')} 
+          source={require('./assets/avatar.png')}
           style={styles.avatar}
         />
       </View>
 
-      
+      {/* User Information */}
       <View style={styles.userInfoContainer}>
         <Text style={styles.userName}>Devcent NIYO</Text>
         <Text style={styles.userDetail}>devcentniyo@gmail.com</Text>
@@ -31,11 +31,11 @@ const Profile = ({ navigation }) => {
 
 export default Profile;
 
-
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#282B34", 
+    backgroundColor: "#282B34",
     padding: 20,
   },
   headerContainer: {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#ffffff', 
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
