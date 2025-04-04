@@ -1,138 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet, Dimensions, Platform } from 'react-native';
-import YoutubePlayer from 'react-native-youtube-iframe';
-import { WebView } from 'react-native-web-webview';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
-const Audio = ({ navigation }) => {
-    const [videos, setVideos] = useState([]);
-    const [videoIndex, setVideoIndex] = useState(0);
-    const [playing, setPlaying] = useState(false);
-    const [loading, setLoading] = useState(true);
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16; // 16:9 aspect ratio
 
-    const screenWidth = Dimensions.get('window').width;
-    const videoHeight = (screenWidth * 9) / 16;
+const Audio = ({ route, navigation }) => {
+    const { book, chapter, videoId } = route.params;
 
-    useEffect(() => {
-        const fetchVideos = async () => {
-            const videoData = [
-                { title: 'ITANGIRIRO 1', videoId: '84WIaK3bl_s', time: '20min', verses: 50 },
-                { title: 'ITANGIRIRO 2', videoId: 'dQw4w9WgXcQ', time: '20min', verses: 50 },
-                { title: 'ITANGIRIRO 3', videoId: '3JZ_D3ELwOQ', time: '20min', verses: 50 },
-            ];
-            setVideos(videoData);
-            setLoading(false);
-        };
-        fetchVideos();
-    }, []);
-
-    const goToPrevious = () => {
-        if (videoIndex > 0) {
-            setVideoIndex(videoIndex - 1);
-            setPlaying(false);
+    const upNextItems = [
+        {
+            id: '1',
+            chapter: chapter + 1,
+            thumbnail: 'https://img.youtube.com/vi/84WIaK3bl_s/default.jpg',
+            verses: 50,
+            time: '20min'
+        },
+        {
+            id: '2',
+            chapter: chapter + 2,
+            thumbnail: 'https://img.youtube.com/vi/84WIaK3bl_s/default.jpg',
+            verses: 45,
+            time: '18min'
+        },
+        {
+            id: '3',
+            chapter: chapter + 3,
+            thumbnail: 'https://img.youtube.com/vi/84WIaK3bl_s/default.jpg',
+            verses: 55,
+            time: '22min'
         }
-    };
-
-    const goToNext = () => {
-        if (videoIndex < videos.length - 1) {
-            setVideoIndex(videoIndex + 1);
-            setPlaying(false);
-        }
-    };
-
-    const renderVideo = () => {
-        if (Platform.OS === 'web') {
-            return (
-                <WebView
-                    source={{
-                        html: `<iframe width="${screenWidth}" height="${videoHeight}" src="https://www.youtube.com/embed/${videos[videoIndex]?.videoId}?autoplay=${playing ? 1 : 0}&enablejsapi=1" frameborder="0" allowfullscreen></iframe>`,
-                    }}
-                    style={{ width: screenWidth, height: videoHeight }}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                    userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                />
-            );
-        }
-        return (
-            <YoutubePlayer
-                height={videoHeight}
-                width={screenWidth}
-                play={playing}
-                videoId={videos[videoIndex]?.videoId}
-                onError={(e) => console.log('YouTube Error:', e)}
-            />
-        );
-    };
-
-    if (loading) {
-        return (
-            <View style={styles.container}>
-                <Text style={styles.title}>Loading...</Text>
-            </View>
-        );
-    }
+    ];
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.videoContainer}>
-                {renderVideo()}
-
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                >
-                    <FontAwesome name="arrow-left" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
-
-            <Text style={styles.nowListening}>Now Listening</Text>
-            <Text style={styles.title}>{videos[videoIndex]?.title}</Text>
-            <Text style={styles.nowListening}>IGICE 1</Text>
-
-            <View style={styles.controls}>
-                <TouchableOpacity onPress={goToPrevious} disabled={videoIndex === 0} style={styles.controlButton}>
-                    <FontAwesome name="backward" size={30} color="white" />
-                    <FontAwesome name="step-backward" size={20} color="white" style={styles.stepBackwardsIcon} />
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={goToNext} disabled={videoIndex === videos.length - 1} style={styles.controlButton}>
-                    <FontAwesome name="step-forward" size={20} color="white" style={styles.stepForwardsIcon} />
-                    <FontAwesome name="forward" size={30} color="white" />
-                </TouchableOpacity>
-            </View>
-
-            <FlatList
-                data={videos}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                        style={styles.videoItem}
-                        onPress={() => {
-                            setVideoIndex(index);
-                            setPlaying(false);
+                <View style={styles.videoWrapper}>
+                    <YoutubePlayer
+                        height={VIDEO_HEIGHT}
+                        width={SCREEN_WIDTH}
+                        videoId={videoId}
+                        webViewProps={{
+                            injectedJavaScript: `
+                                var element = document.createElement('style');
+                                element.innerHTML = 'body { background-color: black; margin: 0; padding: 0; }';
+                                document.head.appendChild(element);
+                            `
                         }}
-                    >
-                        <TouchableOpacity style={styles.playItemButton} onPress={() => {
-                            setVideoIndex(index);
-                            setPlaying(true);
-                        }}>
-                            <Image source={{ uri: `https://img.youtube.com/vi/${item.videoId}/0.jpg` }} style={styles.thumbnail} />
-                            <View style={styles.playOverlay}>
+                    />
+                </View>
+            </View>
 
+            <View style={styles.titleSection}>
+                <Text style={styles.subText}>Uri kumva</Text>
+                <Text style={styles.mainTitle}>{book}</Text>
+                <Text style={styles.chapterText}>IGICE {chapter}</Text>
+            </View>
+
+            <View style={styles.upNextSection}>
+                <Text style={styles.upNextTitle}>Up Next</Text>
+                {upNextItems.map((item) => (
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.upNextItem}
+                        onPress={() => navigation.setParams({
+                            chapter: item.chapter,
+                            videoId: videoId
+                        })}
+                    >
+                        <Image
+                            source={{ uri: item.thumbnail }}
+                            style={styles.thumbnail}
+                        />
+                        <View style={styles.itemInfo}>
+                            <Text style={styles.itemTitle}>{book} {item.chapter}</Text>
+                            <View style={styles.itemDetails}>
+                                <Text style={styles.detailText}>Imirongo: {item.verses}</Text>
+                                <Text style={styles.detailText}>Time: {item.time}</Text>
                             </View>
-                        </TouchableOpacity>
-                        <View style={styles.videoInfo}>
-                            <Text style={styles.videoTitle}>{item.title}</Text>
-                            <Text style={styles.videoDetails}><b>ITANGIRIRO</b> </Text>
-                            <Text style={styles.videoDetails}>Imirongo: {item.verses}</Text>
-                            <Text style={styles.videoDetails}>Time: {item.time}</Text>
                         </View>
+                        <FontAwesome name="play-circle-o" size={32} color="#f68c00" />
                     </TouchableOpacity>
-                )}
-                style={styles.list}
-            />
-        </View>
+                ))}
+            </View>
+        </ScrollView>
     );
 };
 
@@ -140,97 +92,102 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
-        padding: 0,
-        margin: 0,
     },
-    videoContainer: {
-        width: '100%',
-        height: (Dimensions.get('window').width * 9) / 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
+    headerSection: {
+        padding: 20,
     },
-    backButton: {
-        position: 'absolute',
-        top: 10,
-        left: 10,
-        borderRadius: 20,
-        padding: 10,
-        zIndex: 1,
-    },
-
-    nowListening: {
+    headerText: {
         fontSize: 14,
-        color: 'gray',
-        textAlign: 'center',
-        marginVertical: 5,
+        color: '#666',
+        marginBottom: 4,
     },
-    title: {
-        fontSize: 22,
+    bookTitle: {
+        fontSize: 24,
         fontWeight: 'bold',
         color: '#f68c00',
-        textAlign: 'center',
-        marginVertical: 5,
+        marginBottom: 2,
     },
-    controls: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 30,
-        paddingHorizontal: 15,
+    chapterText: {
+        fontSize: 14,
+        color: '#666',
     },
-    controlButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    stepForwardsIcon: {
-        marginRight: 10,
-    },
-    stepBackwardsIcon: {
-        marginLeft: 10,
-    },
-    videoItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#2d3748',
-    },
-    playItemButton: {
-        position: 'relative',
-        width: 100,
-        height: 100,
-        borderRadius: 10,
+    videoContainer: {
+        width: SCREEN_WIDTH,
+        height: VIDEO_HEIGHT,
+        backgroundColor: '#000',
         overflow: 'hidden',
     },
-    thumbnail: {
-        width: '80%',
-        height: '80%',
-    },
-    playOverlay: {
+    videoWrapper: {
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        justifyContent: 'center',
+        backgroundColor: '#000',
+    },
+    upNextSection: {
+        padding: 20,
+    },
+    upNextTitle: {
+        fontSize: 16,
+        color: '#f68c00',
+        marginBottom: 15,
+        fontWeight: '500',
+    },
+    upNextItem: {
+        flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(59, 51, 51, 0.5)',
-        borderRadius: 10,
+        marginBottom: 15,
+        paddingBottom: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
     },
-    videoInfo: {
+    thumbnail: {
+        width: 120,
+        height: 68,
+        borderRadius: 8,
+        marginRight: 15,
+    },
+    itemInfo: {
         flex: 1,
-        marginLeft: 10,
+        marginRight: 15,
     },
-    videoTitle: {
+    itemTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: 'white',
-    },
-    videoDetails: {
         color: '#f68c00',
+        marginBottom: 4,
     },
-    list: {
-        flex: 1,
+    itemDetails: {
+        flexDirection: 'row',
+        gap: 15,
+    },
+    detailText: {
+        fontSize: 13,
+        color: '#666',
+    },
+    titleSection: {
+        padding: 16,
+        backgroundColor: '#ffffff',
+        alignItems: 'center',
+    },
+    subText: {
+        fontSize: 14,
+        color: '#666666',
+        marginBottom: 4,
+        textAlign: 'center',
+    },
+    mainTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#f68c00',
+        marginBottom: 4,
+        textAlign: 'center',
+    },
+    chapterText: {
+        fontSize: 14,
+        color: '#666666',
+        textAlign: 'center',
     },
 });
 

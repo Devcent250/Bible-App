@@ -4,16 +4,14 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { WebView } from 'react-native-web-webview';
 import { FontAwesome } from '@expo/vector-icons';
 
-const Notes = () => {
+const ChapterDetails = ({ route }) => {
   const [videos, setVideos] = useState([]);
   const [videoIndex, setVideoIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
 
-
   const screenWidth = Dimensions.get('window').width;
   const videoHeight = (screenWidth * 9) / 16;
-
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -28,8 +26,6 @@ const Notes = () => {
     fetchVideos();
   }, []);
 
-
-
   const goToPrevious = () => {
     if (videoIndex > 0) {
       setVideoIndex(videoIndex - 1);
@@ -43,7 +39,6 @@ const Notes = () => {
       setPlaying(false);
     }
   };
-
 
   const renderVideo = () => {
     if (Platform.OS === 'web') {
@@ -60,7 +55,6 @@ const Notes = () => {
       );
     }
     return (
-
       <YoutubePlayer
         height={videoHeight}
         width={screenWidth}
@@ -74,7 +68,7 @@ const Notes = () => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -83,15 +77,7 @@ const Notes = () => {
     <View style={styles.container}>
       <View style={styles.videoContainer}>
         {renderVideo()}
-
       </View>
-
-
-      <Text style={styles.nowListening}>Now Listening</Text>
-
-
-      <Text style={styles.title}>{videos[videoIndex]?.title}</Text>
-
 
       <View style={styles.controls}>
         <TouchableOpacity onPress={goToPrevious} disabled={videoIndex === 0} style={styles.controlButton}>
@@ -99,14 +85,11 @@ const Notes = () => {
           <FontAwesome name="step-backward" size={20} color="white" style={styles.stepBackwardsIcon} />
         </TouchableOpacity>
 
-
         <TouchableOpacity onPress={goToNext} disabled={videoIndex === videos.length - 1} style={styles.controlButton}>
           <FontAwesome name="step-forward" size={20} color="white" style={styles.stepForwardsIcon} />
           <FontAwesome name="forward" size={30} color="white" />
         </TouchableOpacity>
       </View>
-
-
 
       <FlatList
         data={videos}
@@ -141,7 +124,6 @@ const Notes = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -152,37 +134,21 @@ const styles = StyleSheet.create({
   videoContainer: {
     width: '100%',
     height: (Dimensions.get('window').width * 9) / 16,
+    backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  playButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  nowListening: {
-    fontSize: 14,
-    color: 'gray',
-    textAlign: 'center',
-    marginVertical: 5,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+  loadingText: {
+    fontSize: 18,
     color: 'white',
     textAlign: 'center',
-    marginVertical: 5,
+    marginTop: 20,
   },
   controls: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 30,
+    marginVertical: 20,
     paddingHorizontal: 15,
   },
   controlButton: {
@@ -234,11 +200,11 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   videoDetails: {
-    color: 'gray',
+    color: '#e0e0e0',
   },
   list: {
     flex: 1,
   },
 });
 
-export default Notes;
+export default ChapterDetails;

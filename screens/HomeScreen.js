@@ -1,23 +1,44 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.navigate('Amasezerano', { screen: 'Testments' });
-    }, 3000);
+    checkFirstLaunch();
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [navigation]);
+  const checkFirstLaunch = async () => {
+    try {
+      const hasLaunched = await AsyncStorage.getItem('hasLaunched');
+      if (hasLaunched === null) {
+        // First time launch
+        await AsyncStorage.setItem('hasLaunched', 'true');
+        // Wait 3 seconds then navigate
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Tabs', params: { screen: 'Amasezerano' } }],
+          });
+        }, 3000);
+      } else {
+        // Not first launch, immediately go to Testments
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Tabs', params: { screen: 'Amasezerano' } }],
+        });
+      }
+    } catch (error) {
+      console.error('Error checking first launch:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('./assets/ubugingo.png')} style={styles.ubugingo} />
-        <Text style={styles.logoText}>UBUGINGO</Text>
+        <View style={styles.ubugingo}>
+          <Text style={styles.logoText}>U</Text>
+        </View>
+        <Text style={styles.appName}>UBUGINGO</Text>
       </View>
     </View>
   );
@@ -28,13 +49,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f68c00',
+    backgroundColor: '#ffffff',
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 50,
   },
   logoText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  appName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
