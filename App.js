@@ -15,6 +15,7 @@ import AudioList from './screens/AudioList';
 import Chapters from './screens/Chapters';
 import Player from './screens/Player';
 import RecentlyPlayed from './screens/RecentlyPlayed'; // Add this import
+import CurrentlyPlaying from './screens/CurrentlyPlaying'; // You'll need to create this screen
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,11 +61,31 @@ const MainStack = () => (
   </Stack.Navigator>
 );
 
-const AudioStack = () => {
+const CurrentlyPlayingStack = () => {
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
-        name="RecentlyPlayed"  // Change the initial screen to RecentlyPlayed
+        name="CurrentlyPlayingScreen"
+        component={CurrentlyPlaying}
+        options={{
+          title: 'Now Playing',
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="Player"
+        component={Player}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const RecentlyPlayedStack = () => {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen
+        name="RecentlyPlayedScreen"
         component={RecentlyPlayed}
         options={{
           title: 'Recently Played',
@@ -131,8 +152,8 @@ const MainTabs = () => {
         }}
       />
       <Tab.Screen
-        name="AudioTab"
-        component={AudioStack}
+        name="CurrentlyPlayingTab"
+        component={CurrentlyPlayingStack}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.iconContainer}>
@@ -146,7 +167,22 @@ const MainTabs = () => {
         }}
       />
       <Tab.Screen
-        name="Notesrrr"
+        name="RecentlyPlayedTab"
+        component={RecentlyPlayedStack}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.iconContainer}>
+              <FontAwesome
+                name="history"
+                size={24}
+                color="#ffffff"
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="NotesTab"
         component={NotesStack}
         options={{
           tabBarIcon: ({ focused }) => (
