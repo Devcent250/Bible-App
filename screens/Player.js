@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { FontAwesome } from '@expo/vector-icons';
 import { API_URL } from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Add this import
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16; // 16:9 aspect ratio
@@ -29,14 +30,67 @@ const Player = ({ route, navigation }) => {
             setCurrentVideoId(videoId);
             setCurrentChapter(chapter);
             fetchAllChapters();
+            
+            // Save to recently played
+            saveToRecentlyPlayed();
         }
     }, []);
 
     useEffect(() => {
         if (currentVideoId) {
             setPlaying(true);
+            
+            // Update recently played when chapter changes
+            if (currentChapter !== chapter) {
+                saveToRecentlyPlayed();
+            }
         }
-    }, [currentVideoId]);
+    }, [currentVideoId, currentChapter]);
+
+    // Add this function to save recently played chapters
+    const saveToRecentlyPlayed = async () => {
+        try {
+            // Create a new entry for the recently played list
+            const newEntry = {
+                bookId: book, // Using book name as ID
+                bookName: book,
+                chapterNumber: currentChapter || chapter,
+                videoId: currentVideoId || videoId,
+                verses: verses,
+                lastPlayed: new Date().toISOString(),
+                thumbnail: `https://img.youtube.com/vi/${currentVideoId || videoId}/default.jpg`
+            };
+            
+            // Get existing recently played data
+            const existingData = await AsyncStorage.getItem('recentlyPlayed');
+            let recentlyPlayed = existingData ? JSON.parse(existingData) : [];
+            
+            // Check if this chapter is already in the list
+            const existingIndex = recentlyPlayed.findIndex(
+                item => item.bookId === newEntry.bookId && 
+                       item.chapterNumber === newEntry.chapterNumber
+            );
+            
+            // If it exists, remove it (we'll add it to the top)
+            if (existingIndex !== -1) {
+                recentlyPlayed.splice(existingIndex, 1);
+            }
+            
+            // Add the new entry to the beginning
+            recentlyPlayed.unshift(newEntry);
+            
+            // Keep only the last 20 entries
+            if (recentlyPlayed.length > 20) {
+                recentlyPlayed = recentlyPlayed.slice(0, 20);
+            }
+            
+            // Save back to AsyncStorage
+            await AsyncStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
+            console.log('Saved to recently played:', newEntry);
+        } catch (error) {
+            console.error('Error saving recently played:', error);
+        }
+    };
 
     const fetchAllChapters = async () => {
         try {
@@ -240,6 +294,7 @@ const Player = ({ route, navigation }) => {
     );
 };
 
+// Styles remain the same
 const styles = StyleSheet.create({
     container: {
         flex: 1,

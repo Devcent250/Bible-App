@@ -14,6 +14,7 @@ import Audio from './screens/Audio';
 import AudioList from './screens/AudioList';
 import Chapters from './screens/Chapters';
 import Player from './screens/Player';
+import RecentlyPlayed from './screens/RecentlyPlayed'; // Add this import
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,10 +64,19 @@ const AudioStack = () => {
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
+        name="RecentlyPlayed"  // Change the initial screen to RecentlyPlayed
+        component={RecentlyPlayed}
+        options={{
+          title: 'Recently Played',
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
         name="AudioList"
         component={AudioList}
         options={{
-          headerShown: false,
+          title: 'All Audio Books',
+          headerShown: true,
         }}
       />
       <Stack.Screen
