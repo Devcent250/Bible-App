@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { FontAwesome } from '@expo/vector-icons';
@@ -15,6 +15,11 @@ const CurrentlyPlaying = ({ navigation }) => {
     const [error, setError] = useState(null);
     const playerRef = useRef(null);
     const isFocused = useIsFocused();
+
+    // Add these state variables for note-taking
+    const [noteModalVisible, setNoteModalVisible] = useState(false);
+    const [noteText, setNoteText] = useState('');
+    const [currentTime, setCurrentTime] = useState(0);
 
     useEffect(() => {
         if (isFocused) {
@@ -64,6 +69,89 @@ const CurrentlyPlaying = ({ navigation }) => {
     const navigateToAllAudio = () => {
         navigation.navigate('RecentlyPlayedTab');
     };
+
+    // Add these functions for note-taking
+    // Update the handleAddNote function
+    const handleAddNote = async () => {
+        if (!mostRecentVideo) {
+            console.log("No recent video available");
+            return;
+        }
+
+        console.log("Add note button pressed");
+
+        // Set a default timestamp if we can't get it from the player
+        let timestamp = 0;
+
+        // Try to get current playback time
+        if (playerRef.current) {
+            try {
+                timestamp = await playerRef.current.getCurrentTime();
+                console.log("Current timestamp:", timestamp);
+            } catch (error) {
+                console.error('Error getting current time:', error);
+                // Continue with timestamp = 0 if there's an error
+            }
+        } else {
+            console.log("Player reference is not available");
+        }
+
+        // Set the current time and open the modal
+        setCurrentTime(timestamp);
+        setNoteModalVisible(true);
+        setPlaying(false); // Pause the video
+    };
+
+
+    const saveNote = async () => {
+        console.log("Attempting to save note");
+
+        if (!noteText.trim() || !mostRecentVideo) {
+            console.log("Note text is empty or no video selected");
+            setNoteModalVisible(false);
+            return;
+        }
+
+        try {
+            console.log("Creating new note at timestamp:", currentTime);
+
+            // Create a new note object
+            const newNote = {
+                id: Date.now().toString(),
+                bookName: mostRecentVideo.bookName,
+                chapterNumber: mostRecentVideo.chapterNumber,
+                videoId: mostRecentVideo.videoId,
+                timestamp: currentTime,
+                text: noteText,
+                createdAt: new Date().toISOString(),
+                thumbnailUrl: `https://img.youtube.com/vi/${mostRecentVideo.videoId}/default.jpg`
+            };
+
+            console.log("New note object:", newNote);
+
+            // Get existing notes
+            const existingNotesData = await AsyncStorage.getItem('videoNotes');
+            let notes = existingNotesData ? JSON.parse(existingNotesData) : [];
+
+            console.log("Existing notes count:", notes.length);
+
+            // Add the new note
+            notes.unshift(newNote);
+
+            // Save back to AsyncStorage
+            await AsyncStorage.setItem('videoNotes', JSON.stringify(notes));
+
+            console.log("Note saved successfully");
+
+            // Clear the note text and close the modal
+            setNoteText('');
+            setNoteModalVisible(false);
+            setPlaying(true); // Resume playing
+        } catch (error) {
+            console.error('Error saving note:', error);
+        }
+    };
+
 
     return (
         <ScrollView style={styles.container}>
@@ -132,8 +220,80 @@ const CurrentlyPlaying = ({ navigation }) => {
                             <Text style={styles.videoSubtitle}>Last played: {formatDate(mostRecentVideo.lastPlayed)}</Text>
                         </View>
                     </View>
+
+                    {/* Add Note Button */}
+                    <View style={styles.noteButtonContainer}>
+                        <TouchableOpacity
+                            style={styles.noteButton}
+                            onPress={handleAddNote}
+                        >
+                            <FontAwesome name="pencil" size={18} color="#fff" />
+                            <Text style={styles.noteButtonText}>Add Note</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
+
+            {/* Note Modal */}
+            {/* Note Modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={noteModalVisible}
+                onRequestClose={() => {
+                    console.log("Modal closed by back button");
+                    setNoteModalVisible(false);
+                    setPlaying(true); // Resume playing when closing
+                }}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Add Note</Text>
+                        {mostRecentVideo && (
+                            <Text style={styles.modalSubtitle}>
+                                {mostRecentVideo.bookName} - Igice {mostRecentVideo.chapterNumber}
+                                (at {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')})
+                            </Text>
+                        )}
+
+                        <TextInput
+                            style={styles.noteInput}
+                            multiline
+                            placeholder="Type your note here..."
+                            value={noteText}
+                            onChangeText={(text) => {
+                                console.log("Note text changed");
+                                setNoteText(text);
+                            }}
+                            autoFocus
+                        />
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.cancelButton]}
+                                onPress={() => {
+                                    console.log("Cancel button pressed");
+                                    setNoteModalVisible(false);
+                                    setPlaying(true); // Resume playing when canceling
+                                }}
+                            >
+                                <Text style={styles.cancelButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.saveButton]}
+                                onPress={() => {
+                                    console.log("Save button pressed");
+                                    saveNote();
+                                }}
+                            >
+                                <Text style={styles.saveButtonText}>Save Note</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
         </ScrollView>
     );
 };
@@ -207,6 +367,89 @@ const styles = StyleSheet.create({
         color: 'red',
         fontSize: 16,
         textAlign: 'center',
+    },
+    // Add these styles for note-taking
+    noteButtonContainer: {
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    noteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f68c00',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+    },
+    noteButtonText: {
+        color: '#fff',
+        fontWeight: '600',
+        marginLeft: 8,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: '90%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5,
+    },
+    modalSubtitle: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 15,
+    },
+    noteInput: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        padding: 10,
+        minHeight: 120,
+        textAlignVertical: 'top',
+        fontSize: 16,
+        marginBottom: 20,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    modalButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        minWidth: 100,
+        alignItems: 'center',
+    },
+    saveButton: {
+        backgroundColor: '#f68c00',
+    },
+    cancelButton: {
+        backgroundColor: '#f5f5f5',
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    cancelButtonText: {
+        color: '#666',
     },
 });
 

@@ -1,15 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { FontAwesome } from '@expo/vector-icons';
 import { API_URL } from '../config';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Add this import
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16; // 16:9 aspect ratio
 
 const Player = ({ route, navigation }) => {
     const { videoId, book = '', chapter = '', verses = '', title = '' } = route.params || {};
+    const playerRef = useRef(null);
     const [playing, setPlaying] = useState(true); // Start playing automatically
     const [upNextChapters, setUpNextChapters] = useState([]);
     const [currentVideoId, setCurrentVideoId] = useState(videoId);
@@ -30,7 +31,7 @@ const Player = ({ route, navigation }) => {
             setCurrentVideoId(videoId);
             setCurrentChapter(chapter);
             fetchAllChapters();
-            
+
             // Save to recently played
             saveToRecentlyPlayed();
         }
@@ -39,7 +40,7 @@ const Player = ({ route, navigation }) => {
     useEffect(() => {
         if (currentVideoId) {
             setPlaying(true);
-            
+
             // Update recently played when chapter changes
             if (currentChapter !== chapter) {
                 saveToRecentlyPlayed();
@@ -47,7 +48,7 @@ const Player = ({ route, navigation }) => {
         }
     }, [currentVideoId, currentChapter]);
 
-    // Add this function to save recently played chapters
+    // Function to save recently played chapters
     const saveToRecentlyPlayed = async () => {
         try {
             // Create a new entry for the recently played list
@@ -60,30 +61,30 @@ const Player = ({ route, navigation }) => {
                 lastPlayed: new Date().toISOString(),
                 thumbnail: `https://img.youtube.com/vi/${currentVideoId || videoId}/default.jpg`
             };
-            
+
             // Get existing recently played data
             const existingData = await AsyncStorage.getItem('recentlyPlayed');
             let recentlyPlayed = existingData ? JSON.parse(existingData) : [];
-            
+
             // Check if this chapter is already in the list
             const existingIndex = recentlyPlayed.findIndex(
-                item => item.bookId === newEntry.bookId && 
-                       item.chapterNumber === newEntry.chapterNumber
+                item => item.bookId === newEntry.bookId &&
+                    item.chapterNumber === newEntry.chapterNumber
             );
-            
+
             // If it exists, remove it (we'll add it to the top)
             if (existingIndex !== -1) {
                 recentlyPlayed.splice(existingIndex, 1);
             }
-            
+
             // Add the new entry to the beginning
             recentlyPlayed.unshift(newEntry);
-            
+
             // Keep only the last 20 entries
             if (recentlyPlayed.length > 20) {
                 recentlyPlayed = recentlyPlayed.slice(0, 20);
             }
-            
+
             // Save back to AsyncStorage
             await AsyncStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
             console.log('Saved to recently played:', newEntry);
@@ -102,17 +103,17 @@ const Player = ({ route, navigation }) => {
                 throw new Error('Failed to fetch chapters');
             }
             const data = await response.json();
-            
+
             // Sort chapters by chapter number
             const sortedChapters = data.sort((a, b) => a.chapter - b.chapter);
             setAllChapters(sortedChapters);
-            
+
             // Update up next chapters
             updateUpNextChapters(sortedChapters, chapter);
+            setLoading(false);
         } catch (err) {
             console.error('Error fetching chapters:', err);
             setError(err.message);
-        } finally {
             setLoading(false);
         }
     };
@@ -123,8 +124,14 @@ const Player = ({ route, navigation }) => {
             ch => ch.chapter === parseInt(currentChapterNum)
         );
 
+        if (currentIndex === -1) {
+            console.log('Current chapter not found in chapters list');
+            return;
+        }
+
         // Get next 4 chapters after current chapter
         const nextChapters = chapters.slice(currentIndex + 1, currentIndex + 5);
+        console.log('Next chapters:', nextChapters);
 
         // Map the chapters to our format
         const formattedChapters = nextChapters.map(ch => ({
@@ -141,10 +148,15 @@ const Player = ({ route, navigation }) => {
     };
 
     const playChapter = (chapterData) => {
+        console.log('Playing chapter:', chapterData);
+
+        // First set the new video ID and chapter
         setCurrentVideoId(chapterData.videoId || chapterData.url);
         setCurrentChapter(chapterData.chapter);
+
+        // Ensure playing is set to true
         setPlaying(true);
-        
+
         // Update navigation params
         navigation.setParams({
             chapter: chapterData.chapter,
@@ -162,7 +174,7 @@ const Player = ({ route, navigation }) => {
         const currentIndex = allChapters.findIndex(
             ch => ch.chapter === parseInt(currentChapter)
         );
-        
+
         if (currentIndex > 0) {
             const previousChapter = allChapters[currentIndex - 1];
             playChapter(previousChapter);
@@ -170,13 +182,32 @@ const Player = ({ route, navigation }) => {
     };
 
     const playNextChapter = () => {
+        console.log('Attempting to play next chapter');
+
         if (upNextChapters.length > 0) {
+            console.log('Found next chapter in upNextChapters:', upNextChapters[0]);
             const nextChapter = upNextChapters[0];
             playChapter({
                 ...nextChapter,
                 videoId: nextChapter.videoId,
                 chapter: nextChapter.chapter
             });
+        } else {
+            console.log('No more chapters in upNextChapters, checking allChapters');
+
+            // If upNextChapters is empty, try to find the next chapter in allChapters
+            const currentIndex = allChapters.findIndex(
+                ch => ch.chapter === parseInt(currentChapter)
+            );
+
+            if (currentIndex !== -1 && currentIndex < allChapters.length - 1) {
+                console.log('Found next chapter in allChapters:', allChapters[currentIndex + 1]);
+                const nextChapter = allChapters[currentIndex + 1];
+                playChapter(nextChapter);
+            } else {
+                console.log('No more chapters available');
+                // Maybe show a message or navigate back
+            }
         }
     };
 
@@ -186,6 +217,19 @@ const Player = ({ route, navigation }) => {
             chapter: nextChapter.chapter,
             verses: nextChapter.verses
         });
+    };
+
+    const onStateChange = (state) => {
+        console.log('Player state changed:', state);
+
+        if (state === 'ended') {
+            console.log('Video ended, playing next chapter');
+            playNextChapter();
+        } else if (state === 'playing') {
+            setPlaying(true);
+        } else if (state === 'paused') {
+            setPlaying(false);
+        }
     };
 
     return (
@@ -200,18 +244,12 @@ const Player = ({ route, navigation }) => {
                 </TouchableOpacity>
 
                 <YoutubePlayer
+                    ref={playerRef}
                     key={currentVideoId}
                     height={VIDEO_HEIGHT}
                     play={playing}
                     videoId={currentVideoId}
-                    onChangeState={(state) => {
-                        console.log('Player state:', state);
-                        if (state === 'ended') {
-                            playNextChapter();
-                        } else if (state === 'playing') {
-                            setPlaying(true);
-                        }
-                    }}
+                    onChangeState={onStateChange}
                     onReady={() => {
                         console.log('Video ready to play');
                         setPlaying(true);
@@ -219,6 +257,11 @@ const Player = ({ route, navigation }) => {
                     onError={(error) => {
                         console.log('Player error:', error);
                         setError('Error playing video: ' + error);
+
+                        // If there's an error with the current video, try playing the next one
+                        setTimeout(() => {
+                            playNextChapter();
+                        }, 3000); // Wait 3 seconds before trying the next chapter
                     }}
                     initialPlayerParams={{
                         preventFullScreen: false,
@@ -280,10 +323,10 @@ const Player = ({ route, navigation }) => {
                                 </View>
                             </View>
                             <View style={styles.playButton}>
-                                <FontAwesome 
+                                <FontAwesome
                                     name="play-circle-o"
-                                    size={32} 
-                                    color="#f68c00" 
+                                    size={32}
+                                    color="#f68c00"
                                 />
                             </View>
                         </TouchableOpacity>
