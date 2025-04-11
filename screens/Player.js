@@ -6,18 +6,18 @@ import { API_URL } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16; // 16:9 aspect ratio
+const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16;
 
 const Player = ({ route, navigation }) => {
     const { videoId, book = '', chapter = '', verses = '', title = '' } = route.params || {};
     const playerRef = useRef(null);
-    const [playing, setPlaying] = useState(true); // Start playing automatically
+    const [playing, setPlaying] = useState(true);
     const [upNextChapters, setUpNextChapters] = useState([]);
     const [currentVideoId, setCurrentVideoId] = useState(videoId);
     const [currentChapter, setCurrentChapter] = useState(chapter);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [allChapters, setAllChapters] = useState([]); // Store all chapters
+    const [allChapters, setAllChapters] = useState([]);
 
     useEffect(() => {
         if (videoId) {
@@ -32,7 +32,7 @@ const Player = ({ route, navigation }) => {
             setCurrentChapter(chapter);
             fetchAllChapters();
 
-            // Save to recently played
+
             saveToRecentlyPlayed();
         }
     }, []);
@@ -41,12 +41,19 @@ const Player = ({ route, navigation }) => {
         if (currentVideoId) {
             setPlaying(true);
 
-            // Update recently played when chapter changes
+
             if (currentChapter !== chapter) {
                 saveToRecentlyPlayed();
             }
         }
     }, [currentVideoId, currentChapter]);
+
+    const onVideoEnd = (event) => {
+        console.log('Video has finished playing');
+        // You can trigger any function here
+    };
+
+
 
     // Function to save recently played chapters
     const saveToRecentlyPlayed = async () => {
@@ -169,6 +176,13 @@ const Player = ({ route, navigation }) => {
         // Update up next chapters
         updateUpNextChapters(allChapters, chapterData.chapter);
     };
+    const opts = {
+        height: '390',
+        width: '640',
+        playerVars: {
+            autoplay: 1,
+        }
+    }
 
     const playPreviousChapter = () => {
         const currentIndex = allChapters.findIndex(
@@ -220,17 +234,17 @@ const Player = ({ route, navigation }) => {
     };
 
     const onStateChange = (state) => {
-        console.log('Player state changed:', state);
-
+        console.log('Player state changed to:', state);
         if (state === 'ended') {
-            console.log('Video ended, playing next chapter');
-            playNextChapter();
-        } else if (state === 'playing') {
-            setPlaying(true);
+            onVideoEnd(); // Trigger your custom logic for video end
+            playNextChapter(); // Automatically play the next chapter
         } else if (state === 'paused') {
             setPlaying(false);
+        } else if (state === 'playing') {
+            setPlaying(true);
         }
     };
+
 
     return (
         <ScrollView style={styles.container}>
@@ -247,9 +261,17 @@ const Player = ({ route, navigation }) => {
                     ref={playerRef}
                     key={currentVideoId}
                     height={VIDEO_HEIGHT}
-                    play={playing}
+                    play={true}
+                    forceAndroidAutoplay={true}
+                    webViewProps={{
+                        allowsInlineMediaPlayback: true,
+                        mediaPlaybackRequiresUserAction: false, // iOS
+                    }}
                     videoId={currentVideoId}
                     onChangeState={onStateChange}
+                    opts={opts}
+                    onEnd={onVideoEnd}
+
                     onReady={() => {
                         console.log('Video ready to play');
                         setPlaying(true);
@@ -257,16 +279,11 @@ const Player = ({ route, navigation }) => {
                     onError={(error) => {
                         console.log('Player error:', error);
                         setError('Error playing video: ' + error);
-
-                        // If there's an error with the current video, try playing the next one
-                        setTimeout(() => {
-                            playNextChapter();
-                        }, 3000); // Wait 3 seconds before trying the next chapter
                     }}
                     initialPlayerParams={{
                         preventFullScreen: false,
                         modestbranding: true,
-                        controls: true,
+                        controls: 0, // Disable all controls except play/pause
                         rel: 0,
                         autoplay: 1,
                         playsinline: 1,
@@ -295,7 +312,7 @@ const Player = ({ route, navigation }) => {
                 </View>
             </View>
 
-            {/* Up Next Section */}
+
             <View style={styles.upNextSection}>
                 <Text style={styles.upNextTitle}>Up Next</Text>
                 {loading ? (

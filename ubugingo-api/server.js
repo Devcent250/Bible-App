@@ -254,7 +254,7 @@ app.get('/api/books/:testament', async (req, res) => {
     }
 });
 
-// Upload book cover
+
 app.post('/api/books/:bookId/cover', upload.single('cover'), async (req, res) => {
     try {
         if (!req.file) {
@@ -268,7 +268,7 @@ app.post('/api/books/:bookId/cover', upload.single('cover'), async (req, res) =>
             return res.status(404).json({ error: 'Book not found' });
         }
 
-        // Store just the filename
+       
         const filename = req.file.filename;
 
         const updatedBook = await Book.findOneAndUpdate(
@@ -277,7 +277,7 @@ app.post('/api/books/:bookId/cover', upload.single('cover'), async (req, res) =>
             { new: true }
         );
 
-        // Add the full URL for the response
+       
         const bookWithUrl = updatedBook.toObject();
         bookWithUrl.book_cover = `${req.protocol}://${req.get('host')}/uploads/books/${filename}`;
 

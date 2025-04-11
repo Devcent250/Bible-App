@@ -203,7 +203,7 @@ const CurrentlyPlaying = ({ navigation }) => {
                             initialPlayerParams={{
                                 preventFullScreen: false,
                                 modestbranding: true,
-                                controls: true,
+                                controls: 0, // Disable all controls except play/pause
                                 rel: 0,
                                 autoplay: 0,
                                 playsinline: 1,
