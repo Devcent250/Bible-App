@@ -294,7 +294,7 @@ const Player = ({ route, navigation }) => {
                     forceAndroidAutoplay={true}
                     webViewProps={{
                         allowsInlineMediaPlayback: true,
-                        mediaPlaybackRequiresUserAction: false, // iOS
+                        mediaPlaybackRequiresUserAction: false, 
                     }}
                     videoId={currentVideoId}
                     onChangeState={onStateChange}
@@ -309,7 +309,7 @@ const Player = ({ route, navigation }) => {
                     initialPlayerParams={{
                         preventFullScreen: false,
                         modestbranding: true,
-                        controls: 0, // Disable all controls except play/pause
+                        controls: 0, 
                         rel: 0,
                         autoplay: 1,
                         playsinline: 1,
