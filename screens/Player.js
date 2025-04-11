@@ -18,6 +18,8 @@ const Player = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [allChapters, setAllChapters] = useState([]);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
 
     useEffect(() => {
         if (videoId) {
@@ -47,6 +49,18 @@ const Player = ({ route, navigation }) => {
             }
         }
     }, [currentVideoId, currentChapter]);
+
+    useEffect(() => {
+        if (playerRef.current) {
+            // Periodically fetch the current time
+            const interval = setInterval(async () => {
+                const time = await playerRef.current?.getCurrentTime();
+                setCurrentTime(time || 0);
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [playerRef]);
 
     const onVideoEnd = (event) => {
         console.log('Video has finished playing');
@@ -245,6 +259,21 @@ const Player = ({ route, navigation }) => {
         }
     };
 
+    const onReady = () => {
+        console.log('Video ready to play');
+        setPlaying(true);
+
+        // Fetch the video duration
+        playerRef.current?.getDuration().then((duration) => {
+            setDuration(duration || 0);
+        });
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -272,10 +301,7 @@ const Player = ({ route, navigation }) => {
                     opts={opts}
                     onEnd={onVideoEnd}
 
-                    onReady={() => {
-                        console.log('Video ready to play');
-                        setPlaying(true);
-                    }}
+                    onReady={onReady}
                     onError={(error) => {
                         console.log('Player error:', error);
                         setError('Error playing video: ' + error);
@@ -292,7 +318,19 @@ const Player = ({ route, navigation }) => {
                     }}
                 />
             </View>
-
+    {/* Progress Bar Section */}
+    <View style={styles.progressContainer}>
+                <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+                <View style={styles.progressBar}>
+                    <View
+                        style={[
+                            styles.progress,
+                            { width: `${(currentTime / duration) * 100}%` },
+                        ]}
+                    />
+                </View>
+                <Text style={styles.timeText}>{formatTime(duration - currentTime)}</Text>
+            </View>
             {/* Title Section with Navigation Controls */}
             <View style={styles.titleSection}>
                 <Text style={styles.mainTitle}>IGICE {currentChapter}</Text>
@@ -312,6 +350,7 @@ const Player = ({ route, navigation }) => {
                 </View>
             </View>
 
+        
 
             <View style={styles.upNextSection}>
                 <Text style={styles.upNextTitle}>Up Next</Text>
@@ -455,7 +494,29 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#666',
         marginTop: 20,
-    }
+    },
+    progressContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        marginTop: 10,
+    },
+    progressBar: {
+        flex: 1,
+        height: 5,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 5,
+        marginHorizontal: 10,
+    },
+    progress: {
+        height: '100%',
+        backgroundColor: '#f68c00',
+        borderRadius: 5,
+    },
+    timeText: {
+        fontSize: 12,
+        color: '#333',
+    },
 });
 
 export default Player;
