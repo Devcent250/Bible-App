@@ -261,17 +261,17 @@ const Player = ({ route, navigation }) => {
                     ref={playerRef}
                     key={currentVideoId}
                     height={VIDEO_HEIGHT}
-                    play={true}
+                    play={true}  // Ensuring autoplay is triggered
                     forceAndroidAutoplay={true}
                     webViewProps={{
                         allowsInlineMediaPlayback: true,
-                        mediaPlaybackRequiresUserAction: false, // iOS
+                        mediaPlaybackRequiresUserAction: false, // iOS-specific setting
+
                     }}
                     videoId={currentVideoId}
                     onChangeState={onStateChange}
                     opts={opts}
                     onEnd={onVideoEnd}
-
                     onReady={() => {
                         console.log('Video ready to play');
                         setPlaying(true);
@@ -283,7 +283,7 @@ const Player = ({ route, navigation }) => {
                     initialPlayerParams={{
                         preventFullScreen: false,
                         modestbranding: true,
-                        controls: 0, // Disable all controls except play/pause
+                        controls: 0,
                         rel: 0,
                         autoplay: 1,
                         playsinline: 1,
@@ -291,6 +291,7 @@ const Player = ({ route, navigation }) => {
                         showinfo: 0
                     }}
                 />
+
             </View>
 
             {/* Title Section with Navigation Controls */}
